@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery — Room for Rent, Depot Bench</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-cream: #FAF7F2;
+            --color-warm-white: #FFFDFB;
+            --color-sage: #7A8B6E;
+            --color-sage-light: #E8EDE5;
+            --color-sage-dark: #5C6B52;
+            --color-terracotta: #C17F59;
+            --color-terracotta-light: #F5E6DC;
+            --color-charcoal: #3A3A38;
+            --color-warm-gray: #6B6965;
+            --font-display: 'Fraunces', serif;
+            --font-body: 'Source Sans 3', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-cream);
+            color: var(--color-charcoal);
+            line-height: 1.7;
+            font-size: 17px;
+        }
+
+        /* Subtle grain texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(180deg, var(--color-sage-light) 0%, var(--color-cream) 100%);
+            padding: 40px 24px 60px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--color-sage-dark);
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 24px;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--color-sage);
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            font-weight: 500;
+            color: var(--color-charcoal);
+            line-height: 1.2;
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            color: var(--color-warm-gray);
+            margin-top: 12px;
+        }
+
+        /* Gallery sections */
+        .gallery-section {
+            padding: 48px 0;
+            border-bottom: 1px solid var(--color-sage-light);
+        }
+
+        .gallery-section:last-of-type {
+            border-bottom: none;
+        }
+
+        h2 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--color-sage-dark);
+            margin-bottom: 24px;
+        }
+
+        /* Photo grid */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .photo-item {
+            aspect-ratio: 4 / 3;
+            background-color: var(--color-sage-light);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-sage);
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .photo-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .photo-item.tall {
+            grid-row: span 2;
+            aspect-ratio: auto;
+        }
+
+        .photo-item.wide {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 600px) {
+            .photo-item.wide {
+                grid-column: span 1;
+            }
+        }
+
+        /* Photo placeholder styling */
+        .placeholder-text {
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+
+        .lightbox-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 24px;
+            font-size: 0.9rem;
+            color: var(--color-warm-gray);
+        }
+
+        .footer-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--color-sage-dark);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px 24px;
+            border: 2px solid var(--color-sage);
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+        }
+
+        .footer-link:hover {
+            background-color: var(--color-sage);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="back-link">← Back to listing</a>
+            <h1>Photo Gallery</h1>
+            <p class="header-subtitle">Take a look around the space</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="gallery-section">
+            <h2>Your Bedroom</h2>
+            <div class="photo-grid">
+                <!-- Replace placeholder divs with actual images like this:
+                     <div class="photo-item"><img src="images/bedroom-1.jpg" alt="Bedroom view"></div>
+                -->
+                <div class="photo-item"><span class="placeholder-text">Bedroom photo 1</span></div>
+                <div class="photo-item"><span class="placeholder-text">Bedroom photo 2</span></div>
+                <div class="photo-item"><span class="placeholder-text">Bedroom photo 3</span></div>
+            </div>
+        </section>
+
+        <section class="gallery-section">
+            <h2>Bathroom</h2>
+            <div class="photo-grid">
+                <div class="photo-item"><span class="placeholder-text">Half bath (attached)</span></div>
+                <div class="photo-item"><span class="placeholder-text">Full bath (upstairs)</span></div>
+            </div>
+        </section>
+
+        <section class="gallery-section">
+            <h2>Kitchen</h2>
+            <div class="photo-grid">
+                <div class="photo-item wide"><span class="placeholder-text">Kitchen wide shot</span></div>
+                <div class="photo-item"><span class="placeholder-text">Kitchen photo 2</span></div>
+                <div class="photo-item"><span class="placeholder-text">Kitchen photo 3</span></div>
+            </div>
+        </section>
+
+        <section class="gallery-section">
+            <h2>Living Room</h2>
+            <div class="photo-grid">
+                <div class="photo-item"><span class="placeholder-text">Living room photo 1</span></div>
+                <div class="photo-item"><span class="placeholder-text">Living room photo 2</span></div>
+                <div class="photo-item"><span class="placeholder-text">Living room photo 3</span></div>
+            </div>
+        </section>
+
+        <section class="gallery-section">
+            <h2>Laundry</h2>
+            <div class="photo-grid">
+                <div class="photo-item"><span class="placeholder-text">Washer & dryer</span></div>
+            </div>
+        </section>
+
+        <section class="gallery-section">
+            <h2>Garden & Outdoor Space</h2>
+            <div class="photo-grid">
+                <div class="photo-item wide"><span class="placeholder-text">Garden beds</span></div>
+                <div class="photo-item"><span class="placeholder-text">Backyard photo 1</span></div>
+                <div class="photo-item"><span class="placeholder-text">Backyard photo 2</span></div>
+            </div>
+        </section>
+
+        <section class="gallery-section">
+            <h2>Exterior & Neighborhood</h2>
+            <div class="photo-grid">
+                <div class="photo-item"><span class="placeholder-text">House exterior</span></div>
+                <div class="photo-item"><span class="placeholder-text">Street view</span></div>
+                <div class="photo-item"><span class="placeholder-text">Cul-de-sac</span></div>
+            </div>
+        </section>
+
+        <section class="gallery-section">
+            <h2>Grace the Cat</h2>
+            <div class="photo-grid">
+                <div class="photo-item"><span class="placeholder-text">Grace photo 1</span></div>
+                <div class="photo-item"><span class="placeholder-text">Grace photo 2</span></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <a href="index.html" class="footer-link">← Back to full listing</a>
+        <p>Depot Bench, Boise, Idaho</p>
+    </footer>
+
+    <!-- Lightbox for viewing full-size images -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" onclick="closeLightbox()">×</span>
+        <img src="" alt="" id="lightbox-img">
+    </div>
+
+    <script>
+        // Lightbox functionality
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        document.querySelectorAll('.photo-item img').forEach(img => {
+            img.parentElement.addEventListener('click', () => {
+                lightboxImg.src = img.src;
+                lightboxImg.alt = img.alt;
+                lightbox.classList.add('active');
+            });
+        });
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+        }
+
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>
